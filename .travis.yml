@@ -1,0 +1,26 @@
+#Enable C++ support
+language: cpp
+
+#Compiler
+compiler:
+    - gcc
+
+#before_install:
+#- sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+#- sudo apt-get update -qq
+
+#install:
+#- sudo apt-get install -qq g++-4.8
+#- export CXX="g++-4.8"
+
+#script: "bash -c ./build.sh"
+
+
+# Build steps
+before_script:
+  - mkdir build
+  - cd build
+  - cmake .. && make
+
+script:
+    - make test
