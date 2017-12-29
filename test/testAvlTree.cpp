@@ -22,7 +22,7 @@ TEST(AvlTreeTest, One_Node) {
     EXPECT_FALSE(b.search(-123));
 }
 
-TEST(AvlTreeTest, Six_Nodes_Insert_Remove) {
+TEST(AvlTreeTest, Seven_Nodes_Insert_Remove) {
     AvlTree b;
     //4 3 6 7 2 1 8
     b.insert(4);
@@ -55,6 +55,7 @@ TEST(AvlTreeTest, Six_Nodes_Insert_Remove) {
     EXPECT_TRUE(b.search(6));
     EXPECT_TRUE(b.search(7));
     EXPECT_TRUE(b.search(8));
+
     b.remove(1);
     EXPECT_FALSE(b.search(1));
     EXPECT_TRUE(b.search(2));
@@ -67,5 +68,6 @@ TEST(AvlTreeTest, Six_Nodes_Insert_Remove) {
     b.remove(2);
     b.remove(6);
     b.remove(7);
+    b.remove(8);
     EXPECT_TRUE(b.isEmpty());
 }

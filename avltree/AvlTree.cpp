@@ -29,10 +29,7 @@ AvlTree::~AvlTree() {
  *******************************************************************/
 bool AvlTree::search(const int value) const {
 
-    if (root == nullptr)
-        return false;
-
-    return root->search(value);
+    return root != nullptr && root->search(value);
 
 }
 
@@ -94,7 +91,7 @@ void AvlTree::remove(const int value) {
     if (root != nullptr) {
         //remove root
         if (root->key == value) {
-            auto toDelete = root;
+            auto toDeleteRoot = root;
             if (root->left == nullptr && root->right == nullptr) {
                 root = nullptr;
             } else if (root->left == nullptr) {
@@ -106,16 +103,15 @@ void AvlTree::remove(const int value) {
             }
             else {
                 auto symSucc = findSymSucc(root);
-                auto toDeleteNode = symSucc;
-                root->right = root->right->remove(symSucc->key);
-                toDeleteNode->left = nullptr;
-                toDeleteNode->right = nullptr;
-                root = new Node(symSucc->key, nullptr, root->left, root->right);
-                delete toDeleteNode;
+                root = new Node(symSucc->key, nullptr, root->left, nullptr);
+                root->right = toDeleteRoot->right->remove(symSucc->key);
+                root->right->parent = root;
+                root->left->parent = root;
             }
-            toDelete->left = nullptr;
-            toDelete->right = nullptr;
-            delete toDelete;
+            toDeleteRoot->left = nullptr;
+            toDeleteRoot->right = nullptr;
+            toDeleteRoot->parent = nullptr;
+            delete toDeleteRoot;
         } else //remove inner nodes or leaves
             root->remove(value);
     }
@@ -126,14 +122,21 @@ AvlTree::Node *AvlTree::Node::remove(const int value) {
     if (value < key) {
         if (left != nullptr) {
             auto toDelete = left;
+
             left = left->remove(value);
-            left->parent = this;
+
             if (toDelete->key == value) {
+                balance++;
                 toDelete->left = nullptr;
                 toDelete->right = nullptr;
                 toDelete->parent = nullptr;
                 delete toDelete;
+
+                //check balance
+                if(balance == 0)
+                    upout(this);
             }
+
         }
         return this;
     }
@@ -142,13 +145,19 @@ AvlTree::Node *AvlTree::Node::remove(const int value) {
         if (right != nullptr) {
             auto toDelete = right;
             right = right->remove(value);
-            right->parent = this;
+
             if (toDelete->key == value) {
+                balance--;
                 toDelete->left = nullptr;
                 toDelete->right = nullptr;
                 toDelete->parent = nullptr;
                 delete toDelete;
+
+                //check balance
+                if(balance == 0)
+                    upout(this);
             }
+
         }
         return this;
     }
@@ -193,9 +202,6 @@ bool AvlTree::isEmpty() {
 /********************************************************************
  * balance and Rotate
  *******************************************************************/
-
-
-
 void AvlTree::Node::rotateLeft(Node* p) {
     if(p == nullptr || p->parent == nullptr)
         return;
@@ -217,7 +223,6 @@ void AvlTree::Node::rotateLeft(Node* p) {
     prev->right = p->left;
     p->left = prev;
     prev->balance++;
-    return ;
 }
 
 void AvlTree::Node::rotateRight(Node* p) {
@@ -247,22 +252,22 @@ void AvlTree::Node::rotateRight(Node* p) {
     p->right = prev;
     prev->balance++;
 
-    return;
 }
 
 void AvlTree::Node::rotateLeftRight(Node* p) {
     if(p == nullptr || p->parent == nullptr)
         return;
 
-    //TODO: Implement this
-    return ;
+    rotateRight(p);
+    rotateLeft(p->parent);
 }
 
 void AvlTree::Node::rotateRightLeft(Node* p) {
     if(p == nullptr || p->parent == nullptr)
         return;
-    //TODO: Implement this
-    return ;
+
+    rotateLeft(p);
+    rotateRight(p->parent);
 }
 
 int AvlTree::Node::upin(Node* p) {
@@ -286,6 +291,72 @@ int AvlTree::Node::upin(Node* p) {
         //Rotation nach links
         rotateRightLeft(p);
     }
+    return 0;
+}
+
+int AvlTree::Node::upout(Node* p) {
+    if(p->parent == nullptr){
+        return p->balance;
+    }
+
+    if(p->parent->right == p){
+        switch(p->parent->balance){
+            case -1: //Fall 1.1
+                p->parent->balance--;
+                upout(p->parent);
+                break;
+            case 0:  //Fall 1.2
+                p->parent->balance--;
+                break;
+            case 1:  //Fall 1.3
+                p->parent->balance--;
+                switch (p->parent->right->balance){
+                    case 0:
+                        rotateRight(p->parent);
+                        upout(p->parent->parent);
+                        break;
+                    case 1:
+                        rotateLeftRight(p->parent);
+                        upout(p->parent->parent);
+                        break;
+                    case -1:
+                        rotateRight(p->parent);
+                        break;
+                }
+                break;
+        }
+    }
+    else{
+
+        switch(p->parent->balance){
+            case -1: //Fall 1.1
+                p->parent->balance++;
+                upout(p->parent);
+                break;
+            case 0:  //Fall 1.2
+                p->parent->balance++;
+                break;
+            case 1:  //Fall 1.3
+
+                p->parent->balance++;
+                switch (p->parent->right->balance){
+                    case 0:
+                        rotateLeft(p->parent);
+                        break;
+                    case 1:
+                        rotateLeft(p->parent);
+                        upout(p->parent->parent);
+                        break;
+                    case -1:
+                        rotateRightLeft(p->parent);
+                        upout(p->parent->parent);
+                        break;
+                }
+                break;
+        }
+
+    };
+
 
     return 0;
 }

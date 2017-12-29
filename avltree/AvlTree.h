@@ -26,6 +26,7 @@ private:
         Node *remove(const int);
 
         int upin(AvlTree::Node* p);
+        int upout(AvlTree::Node* p);
         void rotateLeft(Node * p);
         void rotateRight(Node * p);
         void rotateLeftRight(Node * p);
@@ -33,8 +34,6 @@ private:
 
     };
     Node *root = nullptr;
-
-
 
 public:
     ~AvlTree();
