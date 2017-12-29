@@ -34,11 +34,13 @@ private:
 
     };
     Node *root = nullptr;
-
+    bool isBST(AvlTree::Node* base, AvlTree::Node* left, AvlTree::Node * right);
+    bool isBalanced(AvlTree::Node* base, int* height);
 public:
     ~AvlTree();
     bool isEmpty();
     bool isBalanced();
+    bool isBST();
 
     bool search(const int) const;
     void insert(const int);

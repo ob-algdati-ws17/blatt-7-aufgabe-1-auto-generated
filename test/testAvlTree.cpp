@@ -22,7 +22,8 @@ TEST(AvlTreeTest, One_Node) {
     EXPECT_FALSE(b.search(-123));
 }
 
-TEST(AvlTreeTest, Seven_Nodes_Insert_Remove) {
+//insert some nodes and delete them and check all the time if the tree is still a BST and balanced
+TEST(AvlTreeTest, Seven_Nodes_Insert_Remove_Balanced_BST) {
     AvlTree b;
     //4 3 6 7 2 1 8
     b.insert(4);
@@ -32,6 +33,12 @@ TEST(AvlTreeTest, Seven_Nodes_Insert_Remove) {
     b.insert(2);
     b.insert(1);
     b.insert(8);
+
+
+    //check if tree is BST
+    EXPECT_TRUE(b.isBST());
+    //check if tree is balanced
+    EXPECT_TRUE(b.isBalanced());
     EXPECT_TRUE(b.search(1));
     EXPECT_TRUE(b.search(2));
     EXPECT_TRUE(b.search(3));
@@ -40,6 +47,8 @@ TEST(AvlTreeTest, Seven_Nodes_Insert_Remove) {
     EXPECT_TRUE(b.search(7));
     EXPECT_TRUE(b.search(8));
     b.remove(3);
+    EXPECT_TRUE(b.isBST());
+    EXPECT_TRUE(b.isBalanced());
     EXPECT_TRUE(b.search(1));
     EXPECT_TRUE(b.search(2));
     EXPECT_FALSE(b.search(3));
@@ -47,7 +56,10 @@ TEST(AvlTreeTest, Seven_Nodes_Insert_Remove) {
     EXPECT_TRUE(b.search(6));
     EXPECT_TRUE(b.search(7));
     EXPECT_TRUE(b.search(8));
+    //remove root
     b.remove(4);
+    EXPECT_TRUE(b.isBST());
+    EXPECT_TRUE(b.isBalanced());
     EXPECT_TRUE(b.search(1));
     EXPECT_TRUE(b.search(2));
     EXPECT_FALSE(b.search(3));
@@ -55,8 +67,9 @@ TEST(AvlTreeTest, Seven_Nodes_Insert_Remove) {
     EXPECT_TRUE(b.search(6));
     EXPECT_TRUE(b.search(7));
     EXPECT_TRUE(b.search(8));
-
     b.remove(1);
+    EXPECT_TRUE(b.isBST());
+    EXPECT_TRUE(b.isBalanced());
     EXPECT_FALSE(b.search(1));
     EXPECT_TRUE(b.search(2));
     EXPECT_FALSE(b.search(3));
@@ -66,8 +79,16 @@ TEST(AvlTreeTest, Seven_Nodes_Insert_Remove) {
     EXPECT_TRUE(b.search(8));
     EXPECT_FALSE(b.isEmpty());
     b.remove(2);
+    EXPECT_TRUE(b.isBST());
+    EXPECT_TRUE(b.isBalanced());
     b.remove(6);
+    EXPECT_TRUE(b.isBST());
+    EXPECT_TRUE(b.isBalanced());
     b.remove(7);
+    EXPECT_TRUE(b.isBST());
+    EXPECT_TRUE(b.isBalanced());
     b.remove(8);
+    EXPECT_TRUE(b.isBST());
+    EXPECT_TRUE(b.isBalanced());
     EXPECT_TRUE(b.isEmpty());
 }

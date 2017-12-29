@@ -361,8 +361,70 @@ int AvlTree::Node::upout(Node* p) {
     return 0;
 }
 
+
+bool AvlTree::isBalanced(AvlTree::Node* base, int* height) {
+
+    if(root == nullptr){
+        (*height) = 0;
+        return true;
+    }
+
+    if(base == nullptr){
+        return true;
+    }
+
+    int leftHeight = 0;
+    int rightHeight = 0;
+    bool isBalancedLeft = false;
+    bool isBalancedRight= false;
+
+    isBalancedLeft = isBalanced(base->left, &leftHeight);
+    isBalancedRight = isBalanced(base->right, &rightHeight);
+
+    *height = (leftHeight > rightHeight? leftHeight: rightHeight)+1;
+
+    int balance = rightHeight  - leftHeight;
+    if( balance< -1 && balance > 1)
+        return false;
+
+    return isBalancedLeft && isBalancedRight;
+}
+
 bool AvlTree::isBalanced() {
-    return false;
+
+    //check everything xD
+
+    int height = 0;
+
+    return  isBalanced(root, &height) ;
+}
+
+bool AvlTree::isBST(AvlTree::Node* base, AvlTree::Node* left, AvlTree::Node * right) {
+    if(base == nullptr)
+        return true;
+
+    if(left != nullptr && base->key < left->key)
+        return false;
+
+    if(right != nullptr && base->key > right->key)
+        return false;
+
+    if(base->left == nullptr && base->right == nullptr)
+        return true;
+
+    if(base->left != nullptr && base->right != nullptr)
+        return isBST(base->left, base->left->left,base->left->right) && isBST(base->right, base->right->left,base->right->right);
+    if(base->left == nullptr)
+        return isBST(base->right, base->right->left,base->right->right);
+    if(base->right == nullptr)
+        return isBST(base->left, base->left->left,base->left->right);
+}
+
+bool AvlTree::isBST() {
+    if(root == NULL)
+        return true;
+
+    return isBST(root, root->left, root->right);
 }
 
 /********************************************************************
