@@ -2,15 +2,20 @@ cmake_minimum_required(VERSION 3.7)
 
 project(AvlTree)
 
-
 set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(avltree)
 
-set(SOURCE_FILES main.cpp)
-add_executable(Main ${SOURCE_FILES})
+INCLUDE_DIRECTORIES(.
+        ${CMAKE_SOURCE_DIR}/avltree)
 
-target_link_libraries(Main LINK_PUBLIC avltree)
+SET(SOURCES avltree/AvlTree.cpp)
+add_library(AvlTreeLib ${SOURCES})
+
+#einkommentieren zum erzeugen einer exe
+#add_executable(Main main.cpp)
+#target_link_libraries(Main AvlTreeLib)
+
 
 
 # GoogleTest
