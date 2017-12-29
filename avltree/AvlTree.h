@@ -16,24 +16,38 @@ private:
         const int key;
         Node *left = nullptr;
         Node *right = nullptr;
-        Node(const int);
-        Node(const int, Node *, Node *);
+        Node *parent = nullptr;
+        int balance;
+        Node(const int, Node *);
+        Node(const int, Node *, Node *, Node *);
         ~Node();
         bool search(const int) const;
         void insert(const int);
         Node *remove(const int);
+
+        int upin(AvlTree::Node* p);
+        void rotateLeft(Node * p);
+        void rotateRight(Node * p);
+        void rotateLeftRight(Node * p);
+        void rotateRightLeft(Node * p);
+
     };
     Node *root = nullptr;
+
+
 
 public:
     ~AvlTree();
     bool isEmpty();
+    bool isBalanced();
+
     bool search(const int) const;
     void insert(const int);
     void remove(const int);
 
     friend Node *findSymSucc(Node *);
     friend ostream &operator<<(ostream &, const AvlTree &);
+
 
 };
 

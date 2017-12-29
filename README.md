@@ -1,10 +1,10 @@
-#Algorithmen und Datenstrukturen I, Prof. Dr. Oliver Braun, Praktikum
+# Algorithmen und Datenstrukturen I, Prof. Dr. Oliver Braun, Praktikum
 
 **Organization: Hochschule Muenchen FK07**
 
 *Author: I. Colic*
 
-####Blatt 7 Aufgabenstellung
+#### Blatt 7 Aufgabenstellung
 
 1. Implementieren Sie einen AVL-Baum (siehe Ottmann und Widmayer, Algorithmen und Datenstrukturen, Abschnitt 5.2.1) als Bibliothek in C++. Der AVL-Baum soll kein Template sein, sondern enthält nur ints als Schlüssel.
 2. Die stichprobenartige Qualitätssicherung der Bibliothek erfolgt mit Googletest.
