@@ -6,6 +6,7 @@
 #define AVLTREE_AVLTREE_H
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -32,15 +33,24 @@ private:
         void rotateLeftRight(Node * p);
         void rotateRightLeft(Node * p);
 
+        int getBalance(const int) const;
+
+        vector<int> *preorder() const; // (Hauptreihenfolge)
+        vector<int> *inorder() const; // (Symmetrische Reihenfolge)
+        vector<int> *postorder() const; // (Nebenreihenfolge)
+
     };
     Node *root = nullptr;
     bool isBST(AvlTree::Node* base, AvlTree::Node* left, AvlTree::Node * right);
     bool isBalanced(AvlTree::Node* base, int* height);
+
 public:
     ~AvlTree();
     bool isEmpty();
     bool isBalanced();
     bool isBST();
+
+    int getBalance(const int) const;
 
     bool search(const int) const;
     void insert(const int);
@@ -49,6 +59,9 @@ public:
     friend Node *findSymSucc(Node *);
     friend ostream &operator<<(ostream &, const AvlTree &);
 
+    vector<int> *preorder() const; // (Hauptreihenfolge)
+    vector<int> *inorder() const; // (Symmetrische Reihenfolge)
+    vector<int> *postorder() const; // (Nebenreihenfolge)
 
 };
 

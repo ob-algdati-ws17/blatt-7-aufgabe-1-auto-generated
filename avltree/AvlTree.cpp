@@ -3,6 +3,7 @@
 //
 
 #include <functional>
+#include <limits>
 #include "AvlTree.h"
 
 
@@ -28,9 +29,7 @@ AvlTree::~AvlTree() {
  * Search
  *******************************************************************/
 bool AvlTree::search(const int value) const {
-
     return root != nullptr && root->search(value);
-
 }
 
 bool AvlTree::Node::search(const int value) const {
@@ -107,13 +106,27 @@ void AvlTree::remove(const int value) {
                 root->right = toDeleteRoot->right->remove(symSucc->key);
                 root->right->parent = root;
                 root->left->parent = root;
+                root->balance = root->right->balance + root->left->balance;
             }
             toDeleteRoot->left = nullptr;
             toDeleteRoot->right = nullptr;
             toDeleteRoot->parent = nullptr;
             delete toDeleteRoot;
         } else //remove inner nodes or leaves
-            root->remove(value);
+            if(root->right->key == value){
+                root->remove(value);
+                if(root->parent != nullptr)
+                    root = root->parent;
+
+            }
+            else if(root->left->key == value){
+                root->remove(value);
+
+                if(root->parent != nullptr)
+                    root = root->parent;
+            }
+            else
+                root->remove(value);
     }
 }
 
@@ -133,8 +146,10 @@ AvlTree::Node *AvlTree::Node::remove(const int value) {
                 delete toDelete;
 
                 //check balance
-                if(balance == 0)
+                if(balance == 0 )
                     upout(this);
+                if(balance == 2)
+                    rotateLeft(this);
             }
 
         }
@@ -154,8 +169,10 @@ AvlTree::Node *AvlTree::Node::remove(const int value) {
                 delete toDelete;
 
                 //check balance
-                if(balance == 0)
+                if(balance == 0 )
                     upout(this);
+                if(balance == -2)
+                    rotateRight(this);
             }
 
         }
@@ -163,12 +180,16 @@ AvlTree::Node *AvlTree::Node::remove(const int value) {
     }
 
     if (key == value) {
-        if (left == nullptr && right == nullptr)
+        if (left == nullptr && right == nullptr){
             return nullptr;
-        if (left == nullptr)
+        }
+        if (left == nullptr){
             return right;
-        if (right == nullptr)
+        }
+        if (right == nullptr){
             return left;
+        }
+
         auto symSucc = findSymSucc(this);
 
         return new Node(symSucc->key, parent,left, right->remove(symSucc->key));
@@ -203,8 +224,31 @@ bool AvlTree::isEmpty() {
  * balance and Rotate
  *******************************************************************/
 void AvlTree::Node::rotateLeft(Node* p) {
-    if(p == nullptr || p->parent == nullptr)
+    if(p == nullptr )
         return;
+
+
+    if(p->parent == nullptr){
+        //root
+        Node* r = p->right;
+
+        if(r->left == nullptr)
+            r->balance--;
+
+        p->parent = r;
+        p->right = r->left;
+        r->left =p;
+        r->parent = nullptr;
+
+        //set balance p
+        if(p->right == nullptr && p->left == nullptr)
+            p->balance = 0;
+        else
+            p->balance = (p->right != nullptr)? 1: -1;
+
+        return;
+    }
+
 
     Node* prev = p->parent;
     p->parent = prev->parent;
@@ -222,7 +266,11 @@ void AvlTree::Node::rotateLeft(Node* p) {
     }
     prev->right = p->left;
     p->left = prev;
-    prev->balance++;
+    if(prev->right == nullptr && prev->left == nullptr)
+        prev->balance = 0;
+    else
+        prev->balance = (prev->right != nullptr)? 1: -1;
+
 }
 
 void AvlTree::Node::rotateRight(Node* p) {
@@ -230,7 +278,23 @@ void AvlTree::Node::rotateRight(Node* p) {
         return;
 
     if(p->parent == nullptr){
-        //root?
+        //root
+        Node* l = p->left;
+
+        if(l->right == nullptr)
+            l->balance++;
+
+        p->parent = l;
+        p->left = l->right;
+        l->right =p;
+
+        l->parent = nullptr;
+        //set balance p
+        if(p->right == nullptr && p->left == nullptr)
+            p->balance = 0;
+        else
+            p->balance = (p->right != nullptr)? 1: -1;
+
         return;
     }
 
@@ -250,7 +314,11 @@ void AvlTree::Node::rotateRight(Node* p) {
     }
     prev->left = p->right;
     p->right = prev;
-    prev->balance++;
+    if(prev->right == nullptr && prev->left == nullptr)
+        prev->balance = 0;
+    else
+        prev->balance = (prev->right != nullptr)? 1: -1;
+
 
 }
 
@@ -268,6 +336,35 @@ void AvlTree::Node::rotateRightLeft(Node* p) {
 
     rotateLeft(p);
     rotateRight(p->parent);
+}
+
+int AvlTree::Node::getBalance(const int value) const {
+    int result = std::numeric_limits<int>::max();
+    if (value < key) {
+        if (left != nullptr) {
+            result = left->getBalance(value);
+        }
+        return result;
+    }
+
+    if (value > key) {
+        if (right != nullptr) {
+            result = right->getBalance(value);
+        }
+        return result;
+    }
+
+    if (key == value) {
+        return balance;
+    }
+    // code should not be reached, just to make the compiler happy
+    return result;
+}
+
+int AvlTree::getBalance(const int value) const {
+    if(root == nullptr)
+        return std::numeric_limits<int>::max();
+    return root->getBalance(value);
 }
 
 int AvlTree::Node::upin(Node* p) {
@@ -326,7 +423,7 @@ int AvlTree::Node::upout(Node* p) {
                 break;
         }
     }
-    else{
+    else if(p->parent->left == p){
 
         switch(p->parent->balance){
             case -1: //Fall 1.1
@@ -384,7 +481,7 @@ bool AvlTree::isBalanced(AvlTree::Node* base, int* height) {
     *height = (leftHeight > rightHeight? leftHeight: rightHeight)+1;
 
     int balance = rightHeight  - leftHeight;
-    if( balance< -1 && balance > 1)
+    if( balance< -1 || balance > 1)
         return false;
 
     return isBalancedLeft && isBalancedRight;
@@ -428,6 +525,79 @@ bool AvlTree::isBST() {
 }
 
 /********************************************************************
+ * Traversal
+ *******************************************************************/
+
+vector<int> *AvlTree::preorder() const {
+    if (root == nullptr)
+        return nullptr;
+    return root->preorder();
+}
+
+vector<int> *AvlTree::Node::preorder() const {
+    auto vec = new vector<int>();
+    // Wurzel in vec
+    vec->push_back(key);
+    // linken Nachfolger in vec
+    if (left != nullptr) {
+        auto left_vec = left->preorder();
+        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
+    }
+    // rechten Nachfolger in vec
+    if (right != nullptr) {
+        auto right_vec = right->preorder();
+        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
+    }
+    return vec;
+}
+
+vector<int> *AvlTree::inorder() const {
+    if (root == nullptr)
+        return nullptr;
+    return root->inorder();
+}
+
+vector<int> *AvlTree::Node::inorder() const {
+    auto vec = new vector<int>();
+    // linken Nachfolger in vec
+    if (left != nullptr) {
+        auto left_vec = left->inorder();
+        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
+    }
+    // Wurzel in vec
+    vec->push_back(key);
+    // rechten Nachfolger in vec
+    if (right != nullptr) {
+        auto right_vec = right->inorder();
+        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
+    }
+    return vec;
+}
+
+vector<int> *AvlTree::postorder() const {
+    if (root == nullptr)
+        return nullptr;
+    return root->postorder();
+}
+
+vector<int> *AvlTree::Node::postorder() const {
+    auto vec = new vector<int>();
+    // linken Nachfolger in vec
+    if (left != nullptr) {
+        auto left_vec = left->postorder();
+        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
+    }
+    // rechten Nachfolger in vec
+    if (right != nullptr) {
+        auto right_vec = right->postorder();
+        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
+    }
+    // Wurzel in vec
+    vec->push_back(key);
+    return vec;
+}
+
+/********************************************************************
  * operator<<
  *******************************************************************/
 
@@ -462,6 +632,7 @@ std::ostream &operator<<(std::ostream &os, const AvlTree &tree) {
     return os;
 
 }
+
 
 
 
